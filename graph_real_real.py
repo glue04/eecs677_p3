@@ -1,5 +1,5 @@
-import instructions as inc
-
+import flow_instructions as finc
+import path_instructions as pinc
 class critical_data:
     def __init__(self):
         self.reg = []
@@ -49,27 +49,32 @@ def profile(fn):
 
     return lines, source_line, sink_line
 
-def srcsnkanalysis(fn):
-    lines, source_line, sink_line = profile(fn)
+def srcsnkanalysis(lines):
     print(lines)
     cd = critical_data()
     for i in lines:
         if '@SOURCE(' in i and i[0] != 'declare':
-            inc.SOURCE(i, cd)
+            finc.SOURCE(i, cd)
             print("SOURCE", cd)
         
         elif '@SINK(i32' in i and i[0] != 'declare':
-            print(inc.SINK(i, cd))
+            print(finc.SINK(i, cd))
             print("SINK", cd)
         
         elif 'store' in i:
-            inc.store(i, cd)
+            finc.store(i, cd)
             print('store', cd)
 
         elif 'load' in i:
-            inc.load(i, cd)
+            finc.load(i, cd)
             print('load', cd)
 
 
 if __name__ == "__main__":
-    srcsnkanalysis("ex3.ll")
+    lines, src_line, snk_line = profile("ex3.ll")
+    path_lines = pinc.path(lines)
+
+    for i in path_lines:
+        print(i)
+
+    srcsnkanalysis(lines)
